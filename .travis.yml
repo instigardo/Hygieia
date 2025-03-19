@@ -1,22 +1,33 @@
-language: java
-jdk:
-- oraclejdk8
-notifications:
-  webhooks:
-    urls:
-      https://webhooks.gitter.im/e/48597b0f75dd571734bc
-    on_success: always  # options: [always|never|change] default: always
-    on_failure: always  # options: [always|never|change] default: always
-    on_start: always   # options: [always|never|change] default: always
-  email:
-    recipients:
-      - amit.mawkin@capitalone.com
-      - tapabrata.pal@capitalone.com
-    on_success: always #[always|never|change] # default: change
-    on_failure: always # [always|never|change] # default: always
-
-after_success:
-  - codecov
+language: node_js
+node_js:
+- "16.14.2"
+dist: trusty
+sudo: required
 branches:
   only:
   - master
+cache:
+  directories:
+  - "$TRAVIS_BUILD_DIR/hygieia/node_modules"
+before_install:
+- npm install -g yarn@1.22.18
+- export TZ=America/New_York
+- export NG_CLI_ANALYTICS=ci
+before_script:
+- sudo chown -R $USER:$GROUP $TRAVIS_BUILD_DIR
+- npm install -g @angular/cli
+script:
+- ng lint
+- npm run test:headless
+- if [ "$TRAVIS_PULL_REQUEST" != "false" ] || [ "$TRAVIS_BRANCH" = "master" ]; then mvn clean install -q -U; fi
+
+notifications:
+  email:
+    recipients:
+    - tapabrata.pal@capitalone.com
+    - brock.beatty@capitalone.com
+    - nireesh.thiruveedula@capitalone.com
+    - Stephen.Hughes@capitalone.com
+    - Ragha.Vema@capitalone.com
+    on_success: always
+    on_failure: always
